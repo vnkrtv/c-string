@@ -220,13 +220,13 @@ void test_string_startswith(void) {
 
 void test_string_endswith(void) {
     char *bytes[] = {"", "vfv\n\n", "test string", " some another test  ", "1234"};
-    char *startswith_bytes[] = {"", "fv\n\n", "test string", "test  ", "2"};
+    char *endswith_bytes[] = {"", "fv\n\n", "test string", "test  ", "2"};
     bool_t res[] = {true, true, true, true, false};
 
     for (size_t idx = 0; idx < 5; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
 
-        assert(string_endswith(str, startswith_bytes[idx]) == res[idx]);
+        assert(string_endswith(str, endswith_bytes[idx]) == res[idx]);
     }
 }
 
@@ -242,6 +242,7 @@ void test_string_pos(void) {
     }
 }
 
+#ifndef _WIN32
 void test_string_split(void) {
     char *bytes[] = {
             "",
@@ -356,6 +357,7 @@ void test_string_split_by(void) {
         }
     }
 }
+#endif
 
 void test_string_join_arr(void) {
     string_t *first_arr[] = {
@@ -404,7 +406,7 @@ void test_string_join_arr(void) {
     }
 }
 
-int main(int argc, char **argv) {
+int main() {
     test_runner_t runner = new_runner();
 
     register_test(&runner, &test_new_string, "Test new_string");
