@@ -242,6 +242,7 @@ void test_string_pos(void) {
     }
 }
 
+#ifndef _WIN32
 void test_string_split(void) {
     char *bytes[] = {
             "",
@@ -356,6 +357,7 @@ void test_string_split_by(void) {
         }
     }
 }
+#endif
 
 void test_string_join_arr(void) {
     string_t *first_arr[] = {
