@@ -24,7 +24,19 @@
 #include <stdio.h>
 #include <assert.h>
 
+
 #include "../string_t.h"
+
+#define DUMP_STRING(stream, str) \
+    fprintf(stream, "string_t(bytes=\"%s\", size=%zu)", str->bytes, str->size)
+#define LOG_STRING(arg, str) \
+    fprintf(stdout, "%s=", arg); \
+    DUMP_STRING(stdout, str); \
+    fprintf(stdout, "\n")
+
+#ifndef TEST_ASSERT
+#define bool_t int
+#endif
 
 typedef struct node_t {
     struct node_t *next;
@@ -228,14 +240,14 @@ void test_string_split(void) {
             "1",
             "some",
             " some string 124!",
-            "Some email: vnkrtv@yandex.ru"
+            "Some github account: vnkrtv"
     };
     size_t expected_arr_size[] = {
             1,
             1,
             1,
             4,
-            3
+            4
     };
 
     string_t *first_arr[] = {
@@ -255,8 +267,9 @@ void test_string_split(void) {
     };
     string_t *fifth_arr[] = {
             new_string_from_bytes("Some"),
-            new_string_from_bytes("email:"),
-            new_string_from_bytes("vnkrtv@yandex.ru")
+            new_string_from_bytes("github"),
+            new_string_from_bytes("account:"),
+            new_string_from_bytes("vnkrtv")
     };
     STRING_T_ARRAY arr_expected[] = {first_arr, second_arr, third_arr, fourth_arr, fifth_arr};
 
@@ -269,7 +282,12 @@ void test_string_split(void) {
 
         assert(arr_size == expected_arr_size[idx]);
         for (size_t arr_idx = 0; arr_idx < expected_arr_size[idx]; ++arr_idx) {
-            assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true);
+//            assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true);
+            if (string_eq(str_arr[arr_idx], expected_str_arr[arr_idx]) != true) {
+                LOG_STRING("str_arr[arr_idx]", str_arr[arr_idx]);
+                LOG_STRING("expected_str_arr[arr_idx]", expected_str_arr[arr_idx]);
+                assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true);
+            }
         }
     }
 }
@@ -281,14 +299,14 @@ void test_string_split_by(void) {
             "1",
             "some",
             "WsomeWstringW124!",
-            "SomeWemail:Wvnkrtv@yandex.ru"
+            "SomeWgithubWaccount:Wvnkrtv"
     };
     size_t expected_arr_size[] = {
             1,
             1,
             1,
             4,
-            3
+            4
     };
 
     string_t *first_arr[] = {
@@ -308,8 +326,9 @@ void test_string_split_by(void) {
     };
     string_t *fifth_arr[] = {
             new_string_from_bytes("Some"),
-            new_string_from_bytes("email:"),
-            new_string_from_bytes("vnkrtv@yandex.ru")
+            new_string_from_bytes("github"),
+            new_string_from_bytes("account:"),
+            new_string_from_bytes("vnkrtv")
     };
     string_t **arr_expected[] = {first_arr, second_arr, third_arr, fourth_arr, fifth_arr};
 
@@ -322,7 +341,12 @@ void test_string_split_by(void) {
 
         assert(arr_size == expected_arr_size[idx]);
         for (size_t arr_idx = 0; arr_idx < expected_arr_size[idx]; ++arr_idx) {
-            assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true && bytes[idx]) ;
+//            assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true);
+            if (string_eq(str_arr[arr_idx], expected_str_arr[arr_idx]) != true) {
+                LOG_STRING("str_arr[arr_idx]", str_arr[arr_idx]);
+                LOG_STRING("expected_str_arr[arr_idx]", expected_str_arr[arr_idx]);
+                assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true);
+            }
         }
     }
 }
