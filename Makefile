@@ -9,9 +9,14 @@ TESTS_FOLDER=tests
 TESTS_PATH=test_string_t.c
 TESTS_BIN=test_string_t
 
+EXAMPLES_FOLDER=examples
+EXAMPLES_PATH=example.c
+EXAMPLES_BIN=example
+
+
 .PHONY: test.build
 test.build:
-	$(CC) $(TESTS_FOLDER)/$(TESTS_PATH) -o $(TESTS_FOLDER)/$(TESTS_BIN)
+	$(CC) $(CFLAGS) $(TESTS_FOLDER)/$(TESTS_PATH) -o $(TESTS_FOLDER)/$(TESTS_BIN)
 
 .PHONY: test.run
 test.run:
@@ -19,3 +24,15 @@ test.run:
 
 .PHONY: test
 test: test.build test.run
+
+
+.PHONY: example.build
+example.build:
+	$(CC) $(CFLAGS) $(EXAMPLES_FOLDER)/$(EXAMPLES_PATH) -o $(EXAMPLES_FOLDER)/$(EXAMPLES_BIN)
+
+.PHONY: example.run
+example.run:
+	./$(EXAMPLES_FOLDER)/$(EXAMPLES_BIN)
+
+.PHONY: example
+example: example.build example.run

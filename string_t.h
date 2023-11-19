@@ -55,11 +55,11 @@ typedef struct string_t {
 #ifndef STRING_T_ARRAY
 #define STRING_T_ARRAY string_t **
 #endif
-#ifndef SPACE_CHARS
-#define SPACE_CHARS " \t\n\r"
+#ifndef STRING_T_SPACE_CHARS_ARR
+#define STRING_T_SPACE_CHARS_ARR " \t\n\r"
 #endif
 
-const char STRING_T_SPACE_CHARS[] = SPACE_CHARS;
+const char STRING_T_SPACE_CHARS[] = STRING_T_SPACE_CHARS_ARR;
 
 string_t *new_string(size_t);
 
@@ -85,9 +85,13 @@ int string_pos(const string_t *, const char[]);
 
 string_t *string_strip(const string_t *);
 
+#ifndef _WIN32
+
 STRING_T_ARRAY string_split(const string_t *, size_t *);
 
 STRING_T_ARRAY string_split_by(const string_t *, size_t *, const char[]);
+
+#endif
 
 string_t *string_join_arr(const STRING_T_ARRAY, size_t, const char []);
 
@@ -106,7 +110,7 @@ string_t *new_string_from_bytes(const char *bytes) {
 
 size_t string_len(const string_t *str) {
     return str->size;
-};
+}
 
 char *string_bytes(const string_t *str) {
     char *buf = calloc(sizeof(char), str->size);
@@ -135,7 +139,7 @@ string_t *string_concat(const string_t *first, const string_t *second) {
 }
 
 int string_t_is_space_char(char byte) {
-    for (int idx = 0; idx < strlen(STRING_T_SPACE_CHARS); ++idx) {
+    for (size_t idx = 0; idx < strlen(STRING_T_SPACE_CHARS); ++idx) {
         if (STRING_T_SPACE_CHARS[idx] == byte) {
             return 1;
         }
@@ -190,11 +194,13 @@ string_t *string_strip(const string_t *str) {
     int end_pos = (int) str->size - 1;
     for (; end_pos >= 0 && string_t_is_space_char(str->bytes[end_pos]); --end_pos);
 
-    if (start_pos >= end_pos) {
+    if ((int)start_pos >= end_pos) {
         return string_copy(str);
     }
     return string_substr(str, start_pos, end_pos - start_pos + 1);
 }
+
+#ifndef _WIN32
 
 STRING_T_ARRAY string_split(const string_t *str, size_t *arr_size) {
     size_t str_count = 0;
@@ -233,7 +239,7 @@ STRING_T_ARRAY string_split(const string_t *str, size_t *arr_size) {
     }
 
     STRING_T_ARRAY str_arr = calloc(str_count, sizeof(string_t));
-    for (int idx = 0; idx < str_count; ++idx) {
+    for (size_t idx = 0; idx < str_count; ++idx) {
         size_t sub_str_start_pos = indexes[idx * 2];
         size_t sub_str_end_pos = indexes[idx * 2 + 1];
 
@@ -296,6 +302,8 @@ STRING_T_ARRAY string_split_by(const string_t *str, size_t *arr_size, const char
 
     return str_arr;
 }
+
+#endif
 
 
 string_t *string_join_arr(const STRING_T_ARRAY str_arr, size_t arr_size, const char space_chars[]) {
