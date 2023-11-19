@@ -27,12 +27,12 @@
 
 #include "../string_t.h"
 
-#define DUMP_STRING(stream, str) \
-    fprintf(stream, "string_t(bytes=\"%s\", size=%zu)", str->bytes, str->size)
+#define DUMP_STRING(str) \
+    fprintf(stderr, "string_t(bytes=\"%s\", size=%zu)", str->bytes, str->size)
 #define LOG_STRING(arg, str) \
-    fprintf(stdout, "%s=", arg); \
-    DUMP_STRING(stdout, str); \
-    fprintf(stdout, "\n")
+    fprintf(stderr, "%s=", arg); \
+    DUMP_STRING(str); \
+    fprintf(stderr, "\n")
 
 #ifndef TEST_ASSERT
 #define bool_t int
@@ -42,6 +42,10 @@ typedef struct node_t {
     struct node_t *next;
     void *value;
 } node_t;
+
+node_t *new_node(void *);
+
+node_t *add_node(node_t *, void *);
 
 node_t *new_node(void *value) {
     node_t *created_node = malloc(sizeof(node_t));
@@ -71,6 +75,10 @@ typedef struct test_runner_t {
     node_t *last_test;
 } test_runner_t;
 
+test_runner_t new_runner();
+
+void register_test(test_runner_t *, test_func_t, char *);
+
 test_runner_t new_runner() {
     test_runner_t runner;
     runner.first_test = NULL;
@@ -92,8 +100,8 @@ void register_test(test_runner_t *test_runner, test_func_t test, char *descripti
 
 int run_tests(test_runner_t *test_runner) {
     node_t *cur_test = test_runner->first_test;
-    while(cur_test != NULL) {
-        test_t *test = (test_t*)cur_test->value;
+    while (cur_test != NULL) {
+        test_t *test = (test_t *) cur_test->value;
         test->test();
         printf("%s: OK\n", test->description);
         cur_test = cur_test->next;
@@ -155,7 +163,7 @@ void test_string_copy(void) {
     for (size_t idx = 0; idx < 3; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
         string_t *str_copy = string_copy(str);
-        assert(string_eq(str, str_copy)== true);
+        assert(string_eq(str, str_copy) == true);
     }
 }
 
@@ -168,7 +176,7 @@ void test_string_concat(void) {
         string_t *second_str = new_string_from_bytes(second[idx]);
         string_t *res_str = new_string_from_bytes(res[idx]);
 
-        assert(string_eq(string_concat(first_str, second_str), res_str)== true);
+        assert(string_eq(string_concat(first_str, second_str), res_str) == true);
     }
 }
 
@@ -180,7 +188,7 @@ void test_string_strip(void) {
         string_t *str = new_string_from_bytes(bytes[idx]);
         string_t *exp_stripped_str = new_string_from_bytes(stripped_bytes[idx]);
 
-        assert(string_eq(string_strip(str), exp_stripped_str)== true);
+        assert(string_eq(string_strip(str), exp_stripped_str) == true);
     }
 }
 
@@ -194,7 +202,7 @@ void test_string_substr(void) {
         string_t *str = new_string_from_bytes(bytes[idx]);
         string_t *substr_str = new_string_from_bytes(substr_bytes[idx]);
 
-        assert(string_eq(string_substr(str, substr_start_pos[idx], substr_len[idx]), substr_str)== true);
+        assert(string_eq(string_substr(str, substr_start_pos[idx], substr_len[idx]), substr_str) == true);
     }
 }
 
@@ -224,7 +232,7 @@ void test_string_endswith(void) {
 
 void test_string_pos(void) {
     char *bytes[] = {"", "vfv\n\n", "test string", "test string", " some another test  "};
-    char *chars[] = {"", "\n", "no", "","another"};
+    char *chars[] = {"", "\n", "no", "", "another"};
     int expected_pos[] = {0, 3, -1, 0, 6};
 
     for (size_t idx = 0; idx < 5; ++idx) {
@@ -282,11 +290,10 @@ void test_string_split(void) {
 
         assert(arr_size == expected_arr_size[idx]);
         for (size_t arr_idx = 0; arr_idx < expected_arr_size[idx]; ++arr_idx) {
-//            assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true);
             if (string_eq(str_arr[arr_idx], expected_str_arr[arr_idx]) != true) {
                 LOG_STRING("str_arr[arr_idx]", str_arr[arr_idx]);
                 LOG_STRING("expected_str_arr[arr_idx]", expected_str_arr[arr_idx]);
-                assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true);
+                assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx]) == true);
             }
         }
     }
@@ -341,11 +348,10 @@ void test_string_split_by(void) {
 
         assert(arr_size == expected_arr_size[idx]);
         for (size_t arr_idx = 0; arr_idx < expected_arr_size[idx]; ++arr_idx) {
-//            assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true);
             if (string_eq(str_arr[arr_idx], expected_str_arr[arr_idx]) != true) {
                 LOG_STRING("str_arr[arr_idx]", str_arr[arr_idx]);
                 LOG_STRING("expected_str_arr[arr_idx]", expected_str_arr[arr_idx]);
-                assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx])== true);
+                assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx]) == true);
             }
         }
     }
@@ -394,7 +400,7 @@ void test_string_join_arr(void) {
         const STRING_T_ARRAY arr = (const STRING_T_ARRAY) str_arr[idx];
         string_t *res_str = string_join_arr(arr, arr_size[idx], space_chars[idx]);
 
-        assert(string_eq(res_str, expected_res_str[idx])== true);
+        assert(string_eq(res_str, expected_res_str[idx]) == true);
     }
 }
 
@@ -413,8 +419,10 @@ int main(int argc, char **argv) {
     register_test(&runner, &test_string_endswith, "Test string_endswith");
     register_test(&runner, &test_string_pos, "Test string_pos");
     register_test(&runner, &test_string_strip, "Test string_strip");
+#ifndef _WIN32
     register_test(&runner, &test_string_split, "Test string_split");
     register_test(&runner, &test_string_split_by, "Test string_split_by");
+#endif
     register_test(&runner, &test_string_join_arr, "Test test_string_join_arr");
 
     return run_tests(&runner);
