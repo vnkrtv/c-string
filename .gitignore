@@ -1,0 +1,5 @@
+.idea/
+*.exe
+
+test_string_t
+tests/test_string_t
