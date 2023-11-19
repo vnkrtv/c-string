@@ -7,11 +7,13 @@
 ## Usage
 
 - download `string_t.h` header with lib:
-  - `wget https://github.com/vnkrtv/c-string/blob/main/string_t.h -o string_t.h`
+    - `wget https://github.com/vnkrtv/c-string/blob/main/string_t.h -o string_t.h`
 - include in your source code:
 
-### Example 
+### Example
+
 Can be run with `make example`.
+
 ```c
 #include <stdio.h>
 #include "string_t.h"
@@ -35,8 +37,8 @@ int main(int argc, char **argv) {
     print_str("string_substring(1, 2)", string_substr(hello_str, 1, 2));
     // string_substring(1, 2): "He"
     
-    printf("string_pos(\"ll\"): %d\n", string_pos(hello_str, "ll"));
-    // string_pos("ll"): 3
+    printf("string_find(\"ll\"): %d\n", string_find(hello_str, "ll"));
+    // string_find("ll"): 3
     
     printf("string_startswith(\" Hel\"): %d\n", string_startswith(hello_str, " Hel"));
     // string_startswith(" Hel"): 0
@@ -58,13 +60,14 @@ int main(int argc, char **argv) {
 }
 ```
 
-### Dependences 
+### Dependences
+
 - `string.h`:
-  - `string.h` - for strlen, strcmp
-  - `stdlib.h` - for malloc/calloc
+    - `string.h` - for strlen, strcmp
+    - `stdlib.h` - for malloc/calloc
 - `tests/test_string_t.c`
-  - `assert.h` - for using asserts 
-  - `stdio.h` - for printf/fprintf
+    - `assert.h` - for using asserts
+    - `stdio.h` - for printf/fprintf
 
 ## Documentation
 
@@ -89,23 +92,24 @@ typedef struct string_t {
 
 | Method                                                                        | Description                                                                  |
 |-------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| string_t ***new_string**(size_t);                                             | Allocate new string by given size                                            |
-| string_t ***new_string_from_bytes**(const char *);                            | Allocate new string by given bytes                                           |
-| size_t **string_len**(const string_t *);                                      | Return string length                                                         |
-| char ***string_bytes**(const string_t *);                                     | Return string bytes                                                          |
-| bool_t **string_eq**(const string_t *, const string_t *);                     | Return true if strings are equals                                            |
-| string_t ***string_copy**(const string_t *);                                  | Return copy of string                                                        |
-| string_t ***string_concat**(const string_t *, const string_t *);              | Concat 2 strings                                                             |
-| string_t ***string_substr**(const string_t *, size_t, size_t);                | Get string sub string                                                        |
-| bool_t **string_startswith**(const string_t *, const char[]);                 | Return true if string starts with given prefix                               |
-| bool_t **string_endswith**(const string_t *, const char[]);                   | Return true if string ends with given suffix                                 |
-| int **string_pos**(const string_t *, const char[]);                           | Returns the index of substring's occurrence in string. Otherwise returns -1. |
-| string_t ***string_strip**(const string_t *);                                 | Remove STRING_T_SPACE_CHARS_ARR symbols from start and end of the string     |
-| STRING_T_ARRAY **string_split**(const string_t *, size_t *);                  | Split string by STRING_T_SPACE_CHARS_ARR symbols and return strings array    |
-| STRING_T_ARRAY **string_split_by**(const string_t *, size_t *, const char[]); | Split string by given chars and return strings array                         |
-| string_t ***string_join_arr**(const STRING_T_ARRAY, size_t, const char []);   | Join string with given strings array and separator chars                     |
+| string_t ***new_string**(size_t);                                             | Allocate new string by given size.                                           |
+| string_t ***new_string_from_bytes**(const char *);                            | Allocate new string by given bytes.                                          |
+| size_t **string_len**(const string_t *);                                      | Return string length.                                                        |
+| char ***string_bytes**(const string_t *);                                     | Return string bytes.                                                         |
+| bool_t **string_eq**(const string_t *, const string_t *);                     | Return true(0) if strings are equal.                                         |
+| string_t ***string_copy**(const string_t *);                                  | Return copy of the string.                                                   |
+| string_t ***string_concat**(const string_t *, const string_t *);              | Return result of 2 strings concatenation.                                    |
+| string_t ***string_substr**(const string_t *, size_t, size_t);                | Return string's sub string.                                                  |
+| bool_t **string_startswith**(const string_t *, const char[]);                 | Return true(0) if string starts with given prefix.                           |
+| bool_t **string_endswith**(const string_t *, const char[]);                   | Return true(0) if string ends with given suffix.                             |
+| int **string_find**(const string_t *, const char[]);                          | Returns the index of substring's occurrence in string. Otherwise returns -1. |
+| string_t ***string_strip**(const string_t *);                                 | Return string without STRING_T_SPACE_CHARS_ARR at the start and end.         |
+| STRING_T_ARRAY **string_split**(const string_t *, size_t *);                  | Split string by STRING_T_SPACE_CHARS_ARR symbols and return strings array.   |
+| STRING_T_ARRAY **string_split_by**(const string_t *, size_t *, const char[]); | Split string by given chars and return strings array.                        |
+| string_t ***string_join_arr**(const STRING_T_ARRAY, size_t, const char []);   | Join given strings array with separator chars into one string.               |
 
 ## Tests
 
 Run tests:
+
 - `make test`

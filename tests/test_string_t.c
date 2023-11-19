@@ -34,10 +34,7 @@
     DUMP_STRING(str); \
     fprintf(stderr, "\n")
 
-#ifndef TEST_ASSERT
-#define bool_t int
-#endif
-
+/* Simple linked list C implementation. */
 typedef struct node_t {
     struct node_t *next;
     void *value;
@@ -63,21 +60,31 @@ node_t *add_node(node_t *node, void *value) {
     return created_node;
 }
 
+/*
+ * Test structures
+ */
 typedef void (*test_func_t)(void);
 
+/* Test struct. */
 typedef struct test_t {
     test_func_t test;
     char *description;
 } test_t;
 
+/* Struct for organizing test running. */
 typedef struct test_runner_t {
     node_t *first_test;
     node_t *last_test;
 } test_runner_t;
 
+/* Create new test runner. */
 test_runner_t new_runner();
 
+/* Register test for test runner. */
 void register_test(test_runner_t *, test_func_t, char *);
+
+/* Run registered tests. */
+int run_tests(test_runner_t *);
 
 test_runner_t new_runner() {
     test_runner_t runner;
@@ -109,6 +116,9 @@ int run_tests(test_runner_t *test_runner) {
     return 0;
 }
 
+/*
+ * string_t tests
+ */
 
 void test_new_string(void) {
     size_t sizes[] = {0, 1, 2, 3, 12, 100};
@@ -230,7 +240,7 @@ void test_string_endswith(void) {
     }
 }
 
-void test_string_pos(void) {
+void test_string_find(void) {
     char *bytes[] = {"", "vfv\n\n", "test string", "test string", " some another test  "};
     char *chars[] = {"", "\n", "no", "", "another"};
     int expected_pos[] = {0, 3, -1, 0, 6};
@@ -238,11 +248,12 @@ void test_string_pos(void) {
     for (size_t idx = 0; idx < 5; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
 
-        assert(string_pos(str, chars[idx]) == expected_pos[idx]);
+        assert(string_find(str, chars[idx]) == expected_pos[idx]);
     }
 }
 
 #ifndef _WIN32
+
 void test_string_split(void) {
     char *bytes[] = {
             "",
@@ -357,6 +368,7 @@ void test_string_split_by(void) {
         }
     }
 }
+
 #endif
 
 void test_string_join_arr(void) {
@@ -419,7 +431,7 @@ int main() {
     register_test(&runner, &test_string_substr, "Test string_substr");
     register_test(&runner, &test_string_startswith, "Test string_startswith");
     register_test(&runner, &test_string_endswith, "Test string_endswith");
-    register_test(&runner, &test_string_pos, "Test string_pos");
+    register_test(&runner, &test_string_find, "Test string_find");
     register_test(&runner, &test_string_strip, "Test string_strip");
 #ifndef _WIN32
     register_test(&runner, &test_string_split, "Test string_split");

@@ -47,6 +47,7 @@
 #define STRING_T_INDEXES_BUFFER_SIZE 512
 #endif
 
+/* C string implementation. */
 typedef struct string_t {
     char *bytes;
     size_t size;
@@ -61,38 +62,51 @@ typedef struct string_t {
 
 const char STRING_T_SPACE_CHARS[] = STRING_T_SPACE_CHARS_ARR;
 
+/* Allocate new string by given size. */
 string_t *new_string(size_t);
 
+/* Allocate new string by given bytes. */
 string_t *new_string_from_bytes(const char *);
 
+/* Return string length. */
 size_t string_len(const string_t *);
 
+/* Return string bytes. */
 char *string_bytes(const string_t *);
 
+/* Return true(0) if strings are equal. */
 bool_t string_eq(const string_t *, const string_t *);
 
+/* Return copy of the string. */
 string_t *string_copy(const string_t *);
 
+/* Return result of 2 strings concatenation. */
 string_t *string_concat(const string_t *, const string_t *);
 
+/* Return string's sub string. */
 string_t *string_substr(const string_t *, size_t, size_t);
 
+/* Return true(0) if string starts with given prefix. */
 bool_t string_startswith(const string_t *, const char[]);
 
+/* Return true(0) if string ends with given suffix. */
 bool_t string_endswith(const string_t *, const char[]);
 
-int string_pos(const string_t *, const char[]);
+/* Returns the index of substring's occurrence in string. Otherwise returns -1. */
+int string_find(const string_t *, const char[]);
 
+/* Return string without STRING_T_SPACE_CHARS_ARR at the start and end. */
 string_t *string_strip(const string_t *);
 
 #ifndef _WIN32
-
+/* Split string by STRING_T_SPACE_CHARS_ARR symbols and return strings array. */
 STRING_T_ARRAY string_split(const string_t *, size_t *);
 
+/* Split string by given chars and return strings array. */
 STRING_T_ARRAY string_split_by(const string_t *, size_t *, const char[]);
 
 #endif
-
+/* Join given strings array with separator chars into one string. */
 string_t *string_join_arr(const STRING_T_ARRAY, size_t, const char []);
 
 string_t *new_string(size_t size) {
@@ -117,7 +131,6 @@ char *string_bytes(const string_t *str) {
     strcpy(buf, str->bytes);
     return buf;
 }
-
 
 bool_t string_eq(const string_t *left, const string_t *right) {
     if (left->size != right->size || strcmp(left->bytes, right->bytes) != 0) {
@@ -174,7 +187,7 @@ bool_t string_endswith(const string_t *str, const char prefix[]) {
     return string_eq(str_prefix, exp_prefix);
 }
 
-int string_pos(const string_t *str, const char chars[]) {
+int string_find(const string_t *str, const char chars[]) {
     string_t *chars_str = new_string_from_bytes(chars);
     if (chars_str->size == 0) {
         return 0;
@@ -302,9 +315,7 @@ STRING_T_ARRAY string_split_by(const string_t *str, size_t *arr_size, const char
 
     return str_arr;
 }
-
 #endif
-
 
 string_t *string_join_arr(const STRING_T_ARRAY str_arr, size_t arr_size, const char space_chars[]) {
     size_t str_size = strlen(space_chars) * (arr_size - 1);  // for space chars
@@ -325,5 +336,4 @@ string_t *string_join_arr(const STRING_T_ARRAY str_arr, size_t arr_size, const c
 
     return join_str;
 }
-
 #endif //STRING_T_H
