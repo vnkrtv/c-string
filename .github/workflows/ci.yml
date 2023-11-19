@@ -1,0 +1,44 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build-linux-gcc:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: run tests
+        run: |
+          $CC tests/test_string_t.c -o test_string_t
+          ./test_string_t
+        env:
+          CC: gcc
+  build-linux-clang:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: run tests
+        run: |
+          $CC tests/test_string_t.c -o test_string_t
+          ./test_string_t
+        env:
+          CC: clang
+  build-macos:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: run tests
+        run: |
+          $CC tests/test_string_t.c -o test_string_t
+          ./test_string_t
+        env:
+          CC: clang
+  build-windows-msvc:
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v1
+      - uses: seanmiddleditch/gha-setup-vsdevenv@master
+      - name: run tests
+        shell: cmd
+        run: |
+          cl.exe tests/test_string_t.c
+          .\test_string_t.exe
