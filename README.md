@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/vnkrtv/c-string/workflows/CI/badge.svg)](https://github.com/tsoding/c-string/actions)
+[![Build Status](https://github.com/vnkrtv/c-string/workflows/CI/badge.svg)](https://github.com/vnkrtv/c-string/actions)
 
 # string_t
 
