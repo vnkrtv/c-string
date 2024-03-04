@@ -37,10 +37,10 @@
 #define bool_t int
 #endif
 #ifndef true
-#define true 0
+#define true 1
 #endif
 #ifndef false
-#define false 1
+#define false 0
 #endif
 
 #ifndef STRING_T_INDEXES_BUFFER_SIZE
@@ -67,6 +67,9 @@ string_t *new_string(size_t);
 
 /* Allocate new string by given bytes. */
 string_t *new_string_from_bytes(const char *);
+
+/* Free string's allocated memory. */
+void string_free(string_t *);
 
 /* Return string length. */
 size_t string_len(const string_t *);
@@ -122,6 +125,11 @@ string_t *new_string_from_bytes(const char *bytes) {
     return str;
 }
 
+void string_free(string_t *str) {
+    free(str->bytes);
+    free(str);
+}
+
 size_t string_len(const string_t *str) {
     return str->size;
 }
@@ -175,7 +183,12 @@ bool_t string_startswith(const string_t *str, const char suffix[]) {
     }
     string_t *exp_suffix = new_string_from_bytes(suffix);
     string_t *str_suffix = string_substr(str, 0, exp_suffix->size);
-    return string_eq(str_suffix, exp_suffix);
+
+    bool_t is_suffix = string_eq(str_suffix, exp_suffix);
+    string_free(str_suffix);
+    string_free(exp_suffix);
+
+    return is_suffix;
 }
 
 bool_t string_endswith(const string_t *str, const char prefix[]) {
@@ -184,20 +197,31 @@ bool_t string_endswith(const string_t *str, const char prefix[]) {
     }
     string_t *exp_prefix = new_string_from_bytes(prefix);
     string_t *str_prefix = string_substr(str, str->size - exp_prefix->size, exp_prefix->size);
-    return string_eq(str_prefix, exp_prefix);
+
+    bool_t is_suffix = string_eq(str_prefix, exp_prefix);
+    string_free(str_prefix);
+    string_free(exp_prefix);
+
+    return is_suffix;
 }
 
 int string_find(const string_t *str, const char chars[]) {
     string_t *chars_str = new_string_from_bytes(chars);
     if (chars_str->size == 0) {
+        string_free(chars_str);
         return 0;
     }
     for (size_t pos = 0; pos < str->size; ++pos) {
         string_t *sub_str = string_substr(str, pos, chars_str->size);
-        if (string_eq(sub_str, chars_str) == 0) {
+        if (string_eq(sub_str, chars_str) == true) {
+            string_free(chars_str);
+            string_free(sub_str);
             return (int) pos;
         }
+        string_free(sub_str);
     }
+    string_free(chars_str);
+
     return -1;
 }
 
@@ -277,6 +301,7 @@ STRING_T_ARRAY string_split_by(const string_t *str, size_t *arr_size, const char
         if (arr_size) {
             *arr_size = str_count;
         }
+        string_free(split_str);
         return str_arr;
     }
 
@@ -284,7 +309,7 @@ STRING_T_ARRAY string_split_by(const string_t *str, size_t *arr_size, const char
     size_t pos = 0;
     for (; pos < str->size - split_str->size;) {
         string_t *sub_str = string_substr(str, pos, split_str->size);
-        if (string_eq(sub_str, split_str) == 0) {
+        if (string_eq(sub_str, split_str) == true) {
 
             indexes[str_count * 2] = start_pos;
             indexes[str_count * 2 + 1] = pos;
@@ -295,6 +320,7 @@ STRING_T_ARRAY string_split_by(const string_t *str, size_t *arr_size, const char
         } else {
             ++pos;
         }
+        string_free(sub_str);
     }
     if (pos != start_pos) {
         indexes[str_count * 2] = start_pos;
@@ -312,6 +338,7 @@ STRING_T_ARRAY string_split_by(const string_t *str, size_t *arr_size, const char
     if (arr_size) {
         *arr_size = str_count;
     }
+    string_free(split_str);
 
     return str_arr;
 }

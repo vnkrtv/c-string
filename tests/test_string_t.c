@@ -60,6 +60,13 @@ node_t *add_node(node_t *node, void *value) {
     return created_node;
 }
 
+void node_free(node_t *node) {
+    if (node->value != NULL) {
+        free(node->value);
+    }
+    free(node);
+}
+
 /*
  * Test structures
  */
@@ -70,6 +77,10 @@ typedef struct test_t {
     test_func_t test;
     char *description;
 } test_t;
+
+void test_free(test_t *test) {
+    free(test->description);
+}
 
 /* Struct for organizing test running. */
 typedef struct test_runner_t {
@@ -86,6 +97,9 @@ void register_test(test_runner_t *, test_func_t, char *);
 /* Run registered tests. */
 int run_tests(test_runner_t *);
 
+/* Free test runner. */
+void runner_free(test_runner_t *);
+
 test_runner_t new_runner() {
     test_runner_t runner;
     runner.first_test = NULL;
@@ -96,7 +110,8 @@ test_runner_t new_runner() {
 void register_test(test_runner_t *test_runner, test_func_t test, char *description) {
     test_t *new_test = malloc(sizeof(test_t));
     new_test->test = test;
-    new_test->description = description;
+    new_test->description = malloc(strlen(description));
+    strcpy(new_test->description, description);
     if (test_runner->first_test == NULL) {
         test_runner->first_test = new_node(new_test);
         test_runner->last_test = test_runner->first_test;
@@ -116,15 +131,32 @@ int run_tests(test_runner_t *test_runner) {
     return 0;
 }
 
+void runner_free(test_runner_t *test_runner) {
+    node_t *cur_test = test_runner->first_test;
+    while (cur_test != NULL) {
+        test_t *test = (test_t *) cur_test->value;
+        test_free(test);
+        node_t *node = cur_test;
+        cur_test = cur_test->next;
+        node_free(node);
+    }
+}
+
 /*
  * string_t tests
  */
+void string_arr_free(STRING_T_ARRAY str_arr, size_t size) {
+    for (size_t idx = 0; idx < size; ++idx) {
+        string_free(str_arr[idx]);
+    }
+}
 
 void test_new_string(void) {
     size_t sizes[] = {0, 1, 2, 3, 12, 100};
     for (size_t idx = 0; idx < 5; ++idx) {
         string_t *str = new_string(sizes[idx]);
         assert(str->size == sizes[idx]);
+        string_free(str);
     }
 }
 
@@ -153,8 +185,10 @@ void test_string_bytes(void) {
     char *bytes[] = {"", "test", "some another test"};
     for (size_t idx = 0; idx < 3; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
-        assert(strcmp(string_bytes(str), bytes[idx]) == 0);
+        char *str_bytes = string_bytes(str);
+        assert(strcmp(str_bytes, bytes[idx]) == 0);
         string_free(str);
+        free(str_bytes);
     }
 }
 
@@ -179,6 +213,7 @@ void test_string_copy(void) {
     for (size_t idx = 0; idx < 3; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
         string_t *str_copy = string_copy(str);
+
         assert(string_eq(str, str_copy) == true);
 
         string_free(str);
@@ -194,12 +229,14 @@ void test_string_concat(void) {
         string_t *first_str = new_string_from_bytes(first[idx]);
         string_t *second_str = new_string_from_bytes(second[idx]);
         string_t *res_str = new_string_from_bytes(res[idx]);
+        string_t *concat_str = string_concat(first_str, second_str);
 
-        assert(string_eq(string_concat(first_str, second_str), res_str) == true);
+        assert(string_eq(concat_str, res_str) == true);
 
         string_free(first_str);
         string_free(second_str);
         string_free(res_str);
+        string_free(concat_str);
     }
 }
 
@@ -209,11 +246,13 @@ void test_string_strip(void) {
 
     for (size_t idx = 0; idx < 4; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
+        string_t *stripped_str =  string_strip(str);
         string_t *exp_stripped_str = new_string_from_bytes(stripped_bytes[idx]);
 
-        assert(string_eq(string_strip(str), exp_stripped_str) == true);
+        assert(string_eq(stripped_str, exp_stripped_str) == true);
 
         string_free(str);
+        string_free(stripped_str);
         string_free(exp_stripped_str);
     }
 }
@@ -226,12 +265,14 @@ void test_string_substr(void) {
 
     for (size_t idx = 0; idx < 4; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
-        string_t *substr_str = new_string_from_bytes(substr_bytes[idx]);
+        string_t *substr_str = string_substr(str, substr_start_pos[idx], substr_len[idx]);
+        string_t *expected_substr_str = new_string_from_bytes(substr_bytes[idx]);
 
-        assert(string_eq(string_substr(str, substr_start_pos[idx], substr_len[idx]), substr_str) == true);
+        assert(string_eq(substr_str, expected_substr_str) == true);
 
         string_free(str);
         string_free(substr_str);
+        string_free(expected_substr_str);
     }
 }
 
@@ -327,7 +368,16 @@ void test_string_split(void) {
                 assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx]) == true);
             }
         }
+        string_free(str);
+        string_arr_free(str_arr, arr_size);
+        free(str_arr);
     }
+
+    string_arr_free(first_arr, 1);
+    string_arr_free(second_arr, 1);
+    string_arr_free(third_arr, 1);
+    string_arr_free(fourth_arr, 4);
+    string_arr_free(fifth_arr, 4);
 }
 
 void test_string_split_by(void) {
@@ -385,7 +435,17 @@ void test_string_split_by(void) {
                 assert(string_eq(str_arr[arr_idx], expected_str_arr[arr_idx]) == true);
             }
         }
+
+        string_free(str);
+        string_arr_free(str_arr, arr_size);
+        free(str_arr);
     }
+
+    string_arr_free(first_arr, 1);
+    string_arr_free(second_arr, 1);
+    string_arr_free(third_arr, 1);
+    string_arr_free(fourth_arr, 4);
+    string_arr_free(fifth_arr, 4);
 }
 
 #endif
@@ -437,6 +497,13 @@ void test_string_join_arr(void) {
 
         string_free(res_str);
     }
+
+    string_arr_free(first_arr, 1);
+    string_arr_free(second_arr, 1);
+    string_arr_free(third_arr, 2);
+    string_arr_free(fourth_arr, 3);
+    string_arr_free(fifth_arr, 2);
+    string_arr_free(expected_res_str, 5);
 }
 
 int main() {
@@ -460,5 +527,8 @@ int main() {
 #endif
     register_test(&runner, &test_string_join_arr, "Test test_string_join_arr");
 
-    return run_tests(&runner);
+    run_tests(&runner);
+    runner_free(&runner);
+
+    return 0;
 }
