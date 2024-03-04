@@ -134,6 +134,7 @@ void test_new_string_from_bytes(void) {
         string_t *str = new_string_from_bytes(bytes[idx]);
         assert(str->size == strlen(bytes[idx]));
         assert(strcmp(str->bytes, bytes[idx]) == 0);
+        string_free(str);
     }
 }
 
@@ -144,6 +145,7 @@ void test_string_len(void) {
         string_t *str = new_string_from_bytes(bytes[idx]);
         assert(str->size == strlen(bytes[idx]));
         assert(string_len(str) == len[idx]);
+        string_free(str);
     }
 }
 
@@ -152,6 +154,7 @@ void test_string_bytes(void) {
     for (size_t idx = 0; idx < 3; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
         assert(strcmp(string_bytes(str), bytes[idx]) == 0);
+        string_free(str);
     }
 }
 
@@ -165,6 +168,9 @@ void test_string_eq(void) {
 
         assert(left_str->size == right_str->size);
         assert(strcmp(left_str->bytes, right_str->bytes) == 0);
+
+        string_free(left_str);
+        string_free(right_str);
     }
 }
 
@@ -174,6 +180,9 @@ void test_string_copy(void) {
         string_t *str = new_string_from_bytes(bytes[idx]);
         string_t *str_copy = string_copy(str);
         assert(string_eq(str, str_copy) == true);
+
+        string_free(str);
+        string_free(str_copy);
     }
 }
 
@@ -187,6 +196,10 @@ void test_string_concat(void) {
         string_t *res_str = new_string_from_bytes(res[idx]);
 
         assert(string_eq(string_concat(first_str, second_str), res_str) == true);
+
+        string_free(first_str);
+        string_free(second_str);
+        string_free(res_str);
     }
 }
 
@@ -199,6 +212,9 @@ void test_string_strip(void) {
         string_t *exp_stripped_str = new_string_from_bytes(stripped_bytes[idx]);
 
         assert(string_eq(string_strip(str), exp_stripped_str) == true);
+
+        string_free(str);
+        string_free(exp_stripped_str);
     }
 }
 
@@ -213,6 +229,9 @@ void test_string_substr(void) {
         string_t *substr_str = new_string_from_bytes(substr_bytes[idx]);
 
         assert(string_eq(string_substr(str, substr_start_pos[idx], substr_len[idx]), substr_str) == true);
+
+        string_free(str);
+        string_free(substr_str);
     }
 }
 
@@ -223,8 +242,8 @@ void test_string_startswith(void) {
 
     for (size_t idx = 0; idx < 5; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
-
         assert(string_startswith(str, startswith_bytes[idx]) == res[idx]);
+        string_free(str);
     }
 }
 
@@ -235,8 +254,8 @@ void test_string_endswith(void) {
 
     for (size_t idx = 0; idx < 5; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
-
         assert(string_endswith(str, endswith_bytes[idx]) == res[idx]);
+        string_free(str);
     }
 }
 
@@ -247,8 +266,8 @@ void test_string_find(void) {
 
     for (size_t idx = 0; idx < 5; ++idx) {
         string_t *str = new_string_from_bytes(bytes[idx]);
-
         assert(string_find(str, chars[idx]) == expected_pos[idx]);
+        string_free(str);
     }
 }
 
@@ -415,6 +434,8 @@ void test_string_join_arr(void) {
         string_t *res_str = string_join_arr(arr, arr_size[idx], space_chars[idx]);
 
         assert(string_eq(res_str, expected_res_str[idx]) == true);
+
+        string_free(res_str);
     }
 }
 

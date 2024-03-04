@@ -95,6 +95,7 @@ typedef struct string_t {
 | string_t ***new_string**(size_t);                                             | Allocate new string by given size.                                           |
 | string_t ***new_string_from_bytes**(const char *);                            | Allocate new string by given bytes.                                          |
 | size_t **string_len**(const string_t *);                                      | Return string length.                                                        |
+| size_t **string_free**(string_t *);                                           | Free string's allocated memory.                                              |
 | char ***string_bytes**(const string_t *);                                     | Return string bytes.                                                         |
 | bool_t **string_eq**(const string_t *, const string_t *);                     | Return true(0) if strings are equal.                                         |
 | string_t ***string_copy**(const string_t *);                                  | Return copy of the string.                                                   |
